@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-type Flashcard = {
+export type Flashcard = {
   term: string;
   definition: string;
 };
