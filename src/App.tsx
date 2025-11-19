@@ -1,8 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createHashRouter, RouterProvider } from "react-router";
 
 import Layout from "./components/layout";
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   [
     {
       path: "/",
