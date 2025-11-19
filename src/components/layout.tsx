@@ -6,7 +6,7 @@ export default function Layout() {
       <header>
         <nav>
           <Link to="/">Home</Link>
-          <Link to="/create">Create</Link>
+          <Link to="/sets/new">Create</Link>
         </nav>
       </header>
       <Outlet />

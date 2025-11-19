@@ -8,13 +8,29 @@ const router = createBrowserRouter(
       path: "/",
       element: <Layout />,
       children: [
-        { index: true, lazy: () => import("./pages/home") },
-        { path: ":id", lazy: () => import("./pages/set") },
-        { path: "create", lazy: () => import("./pages/create") },
+        {
+          index: true,
+          lazy: () => import("./pages/home"),
+        },
+        {
+          path: "sets/",
+          children: [
+            {
+              path: "new",
+              lazy: () => import("./pages/new"),
+            },
+            {
+              path: ":id",
+              lazy: () => import("./pages/set"),
+            },
+          ],
+        },
       ],
     },
   ],
-  { basename: "/p36/" },
+  {
+    basename: "/p36",
+  },
 );
 
 export default function App() {

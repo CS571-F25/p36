@@ -28,7 +28,7 @@ export function Component() {
         <button type="submit">Add Card</button>
       </form>
       {flashcards.map((flashcard) => (
-        <div>
+        <div key={flashcard.term}>
           <p>{flashcard.term}</p>
           <p>{flashcard.definition}</p>
         </div>
