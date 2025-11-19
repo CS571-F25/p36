@@ -1,13 +1,15 @@
-import { Outlet } from "react-router";
-import Navbar from "./Navbar";
+import { Link, Outlet } from "react-router";
 
 export default function Layout() {
   return (
     <>
-      <Navbar />
-      <main>
-        <Outlet />
-      </main>
+      <header>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/sets/new">Create</Link>
+        </nav>
+      </header>
+      <Outlet />
     </>
   );
 }

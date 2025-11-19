@@ -8,33 +8,29 @@ const router = createBrowserRouter(
       path: "/",
       element: <Layout />,
       children: [
-        { 
-          index: true, 
-          lazy: async () => {
-            const module = await import("./pages/home");
-            return { Component: module.default };
-          }
+        {
+          index: true,
+          lazy: () => import("./pages/home"),
         },
-        { 
-          path: "create", 
-          lazy: async () => {
-            const module = await import("./pages/StudySets");
-            return { Component: module.default };
-          }
-        },
-        { 
-          path: "sets", 
-          lazy: async () => {
-            const module = await import("./pages/StudySession");
-            return { Component: module.default };
-          }
+        {
+          path: "sets/",
+          children: [
+            {
+              path: "new",
+              lazy: () => import("./pages/new"),
+            },
+            {
+              path: ":id",
+              lazy: () => import("./pages/set"),
+            },
+          ],
         },
       ],
     },
   ],
   {
     basename: "/p36",
-  }
+  },
 );
 
 export default function App() {
