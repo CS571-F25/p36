@@ -18,13 +18,15 @@ type State = {
 };
 
 type Action = {
+  getSet: (id: string) => FlashcardSet | undefined;
   createSet: (name: string, cards: Flashcard[]) => string;
 };
 
 export const useStore = create<State & Action>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       sets: [],
+      getSet: (id) => get().sets.find((state) => state.id === id),
       createSet(name, cards) {
         const id = nanoid();
         set((state) => ({ sets: [...state.sets, { id, name, cards }] }));

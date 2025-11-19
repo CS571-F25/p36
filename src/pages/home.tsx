@@ -1,5 +1,6 @@
 import { Link } from "react-router";
-import useStore from "../store";
+
+import { useStore } from "../store";
 
 export function Component() {
   const sets = useStore((state) => state.sets);

@@ -38,7 +38,9 @@ export function Component() {
           <label htmlFor="name">Name</label>
           <input id="name" name="name" type="text" required />
         </div>
-        <button type="submit">Create</button>
+        <button disabled={!flashcards.length} type="submit">
+          Create
+        </button>
       </form>
       <form onSubmit={addFlashcard}>
         <div>
