@@ -9,15 +9,15 @@ export function Component() {
     <>
       {sets.length ? (
         sets.map((set) => (
-          <div id={set.id}>
+          <Link id={set.id} to={`/sets/${set.id}`}>
             <h2>{set.name}</h2>
-          </div>
+          </Link>
         ))
       ) : (
         <>
           <h2>No study sets</h2>
           <p>Get started by creating a new study set.</p>
-          <Link to="/create">Create a Set</Link>
+          <Link to="/sets/new">Create a Set</Link>
         </>
       )}
     </>
