@@ -2,20 +2,35 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 
 import Layout from "./components/layout";
 
-const router = createBrowserRouter(
-  [
-    {
-      path: "/",
-      element: <Layout />,
-      children: [
-        { index: true, lazy: () => import("./pages/home") },
-        { path: ":id", lazy: () => import("./pages/set") },
-        { path: "create", lazy: () => import("./pages/create") },
-      ],
-    },
-  ],
-  { basename: "/p36/" },
-);
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { 
+        index: true, 
+        lazy: async () => {
+          const module = await import("./pages/home");
+          return { Component: module.default };
+        }
+      },
+      { 
+        path: "create", 
+        lazy: async () => {
+          const module = await import("./pages/StudySets");
+          return { Component: module.default };
+        }
+      },
+      { 
+        path: "sets", 
+        lazy: async () => {
+          const module = await import("./pages/StudySession");
+          return { Component: module.default };
+        }
+      },
+    ],
+  },
+]);
 
 export default function App() {
   return <RouterProvider router={router} />;
