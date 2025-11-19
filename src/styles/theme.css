@@ -4,12 +4,59 @@
   --vintage-grape: #59546c;
   --cool-steel: #8b939c;
   --strawberry-red: #ff0035;
+  --strawberry-red-hover: #e6002f;
   --background: #ffffff;
+  --success-green: #28a745;
+  --warning-yellow: #ffc107;
 }
 
 body {
   background-color: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color: var(--ink-black);
+}
+
+/* Button hover states */
+.btn-primary,
+.btn[style*="strawberry-red"] {
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn[style*="strawberry-red"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 0, 53, 0.3);
+}
+
+/* Navbar link hover */
+.navbar-nav .nav-link {
+  transition: color 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--background) !important;
+  opacity: 0.9;
+}
+
+/* Card hover transitions */
+.card {
+  transition: all 0.3s ease;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--strawberry-red);
+  outline-offset: 2px;
+}
+
+/* Button focus states */
+button:focus-visible {
+  outline: 2px solid var(--strawberry-red);
+  outline-offset: 2px;
 }
 

@@ -43,9 +43,9 @@ export default function Navbar() {
             </Nav.Link>
             <Nav.Link
               as={Link}
-              to="/sets"
+              to="/create"
               style={{
-                color: isActive("/sets") ? "var(--background)" : "var(--cool-steel)",
+                color: isActive("/create") ? "var(--background)" : "var(--cool-steel)",
                 textDecoration: "none",
               }}
             >
@@ -53,9 +53,9 @@ export default function Navbar() {
             </Nav.Link>
             <Nav.Link
               as={Link}
-              to="/study"
+              to="/sets"
               style={{
-                color: isActive("/study") ? "var(--background)" : "var(--cool-steel)",
+                color: isActive("/sets") ? "var(--background)" : "var(--cool-steel)",
                 textDecoration: "none",
               }}
             >

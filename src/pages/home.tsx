@@ -7,12 +7,12 @@ export default function Home() {
   return (
     <Container fluid style={{ padding: 0 }}>
       {/* Hero Section */}
-      <Container style={{ paddingTop: "4rem", paddingBottom: "4rem" }}>
+      <Container style={{ paddingTop: "clamp(2rem, 5vw, 4rem)", paddingBottom: "clamp(2rem, 5vw, 4rem)" }}>
         <Row className="align-items-center">
           <Col lg={6}>
             <h1
               style={{
-                fontSize: "3.5rem",
+                fontSize: "clamp(2rem, 5vw, 3.5rem)",
                 fontWeight: "bold",
                 color: "var(--ink-black)",
                 marginBottom: "1rem",
@@ -22,7 +22,7 @@ export default function Home() {
             </h1>
             <h2
               style={{
-                fontSize: "1.5rem",
+                fontSize: "clamp(1.2rem, 3vw, 1.5rem)",
                 color: "var(--twilight-indigo)",
                 marginBottom: "1.5rem",
                 fontWeight: "normal",
@@ -32,7 +32,7 @@ export default function Home() {
             </h2>
             <p
               style={{
-                fontSize: "1.1rem",
+                fontSize: "clamp(1rem, 2vw, 1.1rem)",
                 color: "var(--vintage-grape)",
                 marginBottom: "2rem",
                 lineHeight: "1.6",
@@ -43,7 +43,7 @@ export default function Home() {
               everyone.
             </p>
             <Button
-              onClick={() => navigate("/sets")}
+              onClick={() => navigate("/create")}
               style={{
                 backgroundColor: "var(--strawberry-red)",
                 borderColor: "var(--strawberry-red)",
@@ -52,6 +52,14 @@ export default function Home() {
                 fontWeight: "600",
               }}
               size="lg"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--strawberry-red-hover)";
+                e.currentTarget.style.borderColor = "var(--strawberry-red-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
+                e.currentTarget.style.borderColor = "var(--strawberry-red)";
+              }}
             >
               Start Studying
             </Button>

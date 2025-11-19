@@ -7,9 +7,27 @@ const router = createBrowserRouter([
     path: "/",
     element: <Layout />,
     children: [
-      { index: true, lazy: () => import("./pages/Home") },
-      { path: "sets", lazy: () => import("./pages/StudySets") },
-      { path: "study", lazy: () => import("./pages/StudySession") },
+      { 
+        index: true, 
+        lazy: async () => {
+          const module = await import("./pages/home");
+          return { Component: module.default };
+        }
+      },
+      { 
+        path: "create", 
+        lazy: async () => {
+          const module = await import("./pages/StudySets");
+          return { Component: module.default };
+        }
+      },
+      { 
+        path: "sets", 
+        lazy: async () => {
+          const module = await import("./pages/StudySession");
+          return { Component: module.default };
+        }
+      },
     ],
   },
 ]);
