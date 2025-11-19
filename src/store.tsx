@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { nanoid } from "nanoid";
 
 export type Flashcard = {
   term: string;
@@ -16,10 +17,19 @@ type State = {
   sets: FlashcardSet[];
 };
 
-const useStore = create<State>()(
+type Action = {
+  createSet: (name: string, cards: Flashcard[]) => string;
+};
+
+export const useStore = create<State & Action>()(
   persist(
-    (get, set) => ({
+    (set) => ({
       sets: [],
+      createSet(name, cards) {
+        const id = nanoid();
+        set((state) => ({ sets: [...state.sets, { id, name, cards }] }));
+        return id;
+      },
     }),
     {
       name: "recall",
@@ -27,5 +37,3 @@ const useStore = create<State>()(
     },
   ),
 );
-
-export default useStore;
