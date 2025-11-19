@@ -1,37 +1,41 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createHashRouter, RouterProvider } from "react-router";
 
 import Layout from "./components/layout";
 
-const router = createBrowserRouter(
-  [
-    {
-      path: "/",
-      element: <Layout />,
-      children: [
+const router = createHashRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
         {
           index: true,
-          lazy: () => import("./pages/home"),
+          lazy: async () => {
+            const module = await import("./pages/home");
+            return { Component: module.default };
+          },
         },
         {
           path: "sets/",
           children: [
             {
               path: "new",
-              lazy: () => import("./pages/new"),
+              lazy: async () => {
+                const module = await import("./pages/new");
+                return { Component: module.default };
+              },
             },
             {
               path: ":id",
-              lazy: () => import("./pages/set"),
+              lazy: async () => {
+                const module = await import("./pages/set");
+                return { Component: module.default };
+              },
             },
           ],
         },
-      ],
-    },
-  ],
-  {
-    basename: "/p36",
+    ],
   },
-);
+]);
 
 export default function App() {
   return <RouterProvider router={router} />;
