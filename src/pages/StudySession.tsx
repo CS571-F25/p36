@@ -145,7 +145,7 @@ export function Component() {
               borderColor: "var(--strawberry-red)",
               padding: "0.75rem 2rem",
               fontSize: "1rem",
-              fontWeight: "600",
+              fontWeight: "600", 
             }}
             size="lg"
             onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {

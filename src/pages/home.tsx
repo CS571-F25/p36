@@ -1,5 +1,6 @@
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Image } from "react-bootstrap";
 import { useNavigate } from "react-router";
+import goldfish from "../assets/goldfish.png";
 
 export function Component() {
   const navigate = useNavigate();
@@ -12,9 +13,9 @@ export function Component() {
           <Col lg={6}>
             <h1
               style={{
-                fontSize: "clamp(2rem, 5vw, 3.5rem)",
+                fontSize: "clamp(6rem, 9vw, 7.5rem)",
                 fontWeight: "bold",
-                color: "var(--ink-black)",
+                color: "var(--strawberry-red)", 
                 marginBottom: "1rem",
               }}
             >
@@ -46,7 +47,7 @@ export function Component() {
               onClick={() => navigate("/sets")}
               style={{
                 backgroundColor: "var(--strawberry-red)",
-                borderColor: "var(--strawberry-red)",
+                borderColor: "var(--magenta-rose)",
                 padding: "0.75rem 2rem",
                 fontSize: "1.1rem",
                 fontWeight: "600",
@@ -65,29 +66,7 @@ export function Component() {
             </Button>
           </Col>
           <Col lg={6} className="text-center">
-            <div
-              style={{
-                backgroundColor: "var(--cool-steel)",
-                opacity: 0.2,
-                borderRadius: "1rem",
-                padding: "4rem 2rem",
-                minHeight: "300px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "2px dashed var(--cool-steel)",
-              }}
-            >
-              <p
-                style={{
-                  color: "var(--vintage-grape)",
-                  fontSize: "1rem",
-                  fontStyle: "italic",
-                }}
-              >
-                Goldfish illustration placeholder
-              </p>
-            </div>
+            <Image src={goldfish} fluid rounded alt="Geometric Goldfish Image"/>
           </Col>
         </Row>
       </Container>
