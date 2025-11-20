@@ -1,13 +1,13 @@
 import * as React from "react";
-import { Container, Row, Col, Card, Form, Button, ListGroup } from "react-bootstrap";
+import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router";
 
 import { type Flashcard, useStore } from "../store";
 
-export default function Component() {
+export function Component() {
   const [flashcards, setFlashcards] = React.useState<Flashcard[]>([]);
 
-  const createSet = useStore((state: { createSet: (name: string, cards: Flashcard[]) => string }) => state.createSet);
+  const createSet = useStore((state) => state.createSet);
 
   const navigate = useNavigate();
 
@@ -46,8 +46,8 @@ export default function Component() {
       </h1>
 
       <Row>
-        <Col lg={6} className="mb-4">
-          <Card>
+        <Col lg={6}>
+          <Card className="mb-4" style={{ border: "1px solid var(--cool-steel)" }}>
             <Card.Header
               style={{
                 backgroundColor: "var(--twilight-indigo)",
@@ -60,7 +60,7 @@ export default function Component() {
             <Card.Body>
               <Form onSubmit={createFlashcardSet}>
                 <Form.Group className="mb-3">
-                  <Form.Label style={{ fontWeight: "600", color: "var(--ink-black)" }}>
+                  <Form.Label style={{ color: "var(--ink-black)", fontWeight: "600" }}>
                     Set Name
                   </Form.Label>
                   <Form.Control
@@ -80,7 +80,6 @@ export default function Component() {
                   style={{
                     backgroundColor: "var(--strawberry-red)",
                     borderColor: "var(--strawberry-red)",
-                    padding: "0.75rem 2rem",
                     fontWeight: "600",
                   }}
                   onMouseEnter={(e) => {
@@ -92,20 +91,13 @@ export default function Component() {
                     e.currentTarget.style.borderColor = "var(--strawberry-red)";
                   }}
                 >
-                  Create Set
+                  Create Set ({flashcards.length} {flashcards.length === 1 ? "card" : "cards"})
                 </Button>
-                {!flashcards.length && (
-                  <Form.Text className="text-muted d-block mt-2">
-                    Add at least one flashcard to create the set
-                  </Form.Text>
-                )}
               </Form>
             </Card.Body>
           </Card>
-        </Col>
 
-        <Col lg={6} className="mb-4">
-          <Card>
+          <Card style={{ border: "1px solid var(--cool-steel)" }}>
             <Card.Header
               style={{
                 backgroundColor: "var(--vintage-grape)",
@@ -118,7 +110,7 @@ export default function Component() {
             <Card.Body>
               <Form onSubmit={addFlashcard}>
                 <Form.Group className="mb-3">
-                  <Form.Label style={{ fontWeight: "600", color: "var(--ink-black)" }}>
+                  <Form.Label style={{ color: "var(--ink-black)", fontWeight: "600" }}>
                     Term
                   </Form.Label>
                   <Form.Control
@@ -126,23 +118,23 @@ export default function Component() {
                     name="term"
                     type="text"
                     required
-                    placeholder="Front of card"
+                    placeholder="Enter the term or question"
                     style={{
                       borderColor: "var(--cool-steel)",
                     }}
                   />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label style={{ fontWeight: "600", color: "var(--ink-black)" }}>
+                  <Form.Label style={{ color: "var(--ink-black)", fontWeight: "600" }}>
                     Definition
                   </Form.Label>
                   <Form.Control
-                    as="textarea"
-                    rows={3}
                     id="definition"
                     name="definition"
+                    as="textarea"
+                    rows={3}
                     required
-                    placeholder="Back of card"
+                    placeholder="Enter the definition or answer"
                     style={{
                       borderColor: "var(--cool-steel)",
                     }}
@@ -150,19 +142,10 @@ export default function Component() {
                 </Form.Group>
                 <Button
                   type="submit"
-                  variant="outline-primary"
                   style={{
+                    backgroundColor: "var(--twilight-indigo)",
                     borderColor: "var(--twilight-indigo)",
-                    color: "var(--twilight-indigo)",
                     fontWeight: "600",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--twilight-indigo)";
-                    e.currentTarget.style.color = "var(--background)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--twilight-indigo)";
                   }}
                 >
                   Add Card
@@ -171,41 +154,44 @@ export default function Component() {
             </Card.Body>
           </Card>
         </Col>
-      </Row>
 
-      {flashcards.length > 0 && (
-        <Row>
-          <Col>
-            <Card>
-              <Card.Header
-                style={{
-                  backgroundColor: "var(--cool-steel)",
-                  color: "var(--background)",
-                  fontWeight: "600",
-                }}
-              >
-                Flashcards ({flashcards.length})
-              </Card.Header>
-              <Card.Body style={{ padding: 0 }}>
-                <ListGroup variant="flush">
+        <Col lg={6}>
+          <Card style={{ border: "1px solid var(--cool-steel)" }}>
+            <Card.Header
+              style={{
+                backgroundColor: "var(--ink-black)",
+                color: "var(--background)",
+                fontWeight: "600",
+              }}
+            >
+              Flashcards ({flashcards.length})
+            </Card.Header>
+            <Card.Body>
+              {flashcards.length === 0 ? (
+                <p style={{ color: "var(--vintage-grape)", fontStyle: "italic" }}>
+                  No flashcards yet. Add your first card using the form on the left.
+                </p>
+              ) : (
+                <div style={{ maxHeight: "500px", overflowY: "auto" }}>
                   {flashcards.map((flashcard, index) => (
-                    <ListGroup.Item
+                    <Card
                       key={flashcard.term}
+                      className="mb-3"
                       style={{
-                        borderColor: "var(--cool-steel)",
-                        padding: "1rem",
+                        border: "1px solid var(--cool-steel)",
+                        backgroundColor: index % 2 === 0 ? "var(--background)" : "rgba(139, 147, 156, 0.05)",
                       }}
                     >
-                      <Row className="align-items-center">
-                        <Col>
-                          <div style={{ fontWeight: "600", color: "var(--ink-black)", marginBottom: "0.25rem" }}>
-                            {flashcard.term}
-                          </div>
-                          <div style={{ color: "var(--vintage-grape)", fontSize: "0.9rem" }}>
-                            {flashcard.definition}
-                          </div>
-                        </Col>
-                        <Col xs="auto">
+                      <Card.Body>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                          <div style={{ flex: 1 }}>
+                            <h6 style={{ color: "var(--ink-black)", fontWeight: "600", marginBottom: "0.5rem" }}>
+                              {flashcard.term}
+                            </h6>
+                            <p style={{ color: "var(--vintage-grape)", margin: 0, fontSize: "0.9rem" }}>
+                              {flashcard.definition}
+                            </p>
+        </div>
                           <Button
                             variant="outline-danger"
                             size="sm"
@@ -213,28 +199,21 @@ export default function Component() {
                             style={{
                               borderColor: "var(--strawberry-red)",
                               color: "var(--strawberry-red)",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
-                              e.currentTarget.style.color = "var(--background)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = "transparent";
-                              e.currentTarget.style.color = "var(--strawberry-red)";
+                              marginLeft: "1rem",
                             }}
                           >
-                            Delete
+            Delete
                           </Button>
-                        </Col>
-                      </Row>
-                    </ListGroup.Item>
+        </div>
+                      </Card.Body>
+                    </Card>
                   ))}
-                </ListGroup>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      )}
+                </div>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
     </Container>
   );
 }

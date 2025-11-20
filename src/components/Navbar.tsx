@@ -4,7 +4,10 @@ import { Link, useLocation } from "react-router";
 export default function Navbar() {
   const location = useLocation();
 
-  const isActive = (path: string) => location.pathname === path || location.hash === path;
+  const isActive = (path: string) => {
+    const hashPath = `#${path}`;
+    return location.pathname === path || location.hash === hashPath || location.hash === path;
+  };
 
   return (
     <BootstrapNavbar
@@ -35,7 +38,7 @@ export default function Navbar() {
               as={Link}
               to="/"
               style={{
-                color: isActive("/") ? "var(--background)" : "var(--cool-steel)",
+                color: isActive("/") || isActive("#/") ? "var(--background)" : "var(--cool-steel)",
                 textDecoration: "none",
               }}
             >
@@ -43,13 +46,23 @@ export default function Navbar() {
             </Nav.Link>
             <Nav.Link
               as={Link}
-              to="/sets/new"
+              to="/sets"
               style={{
-                color: isActive("/sets/new") ? "var(--background)" : "var(--cool-steel)",
+                color: isActive("/sets") || isActive("#/sets") ? "var(--background)" : "var(--cool-steel)",
                 textDecoration: "none",
               }}
             >
-              Create Set
+              Study Sets
+            </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/study"
+              style={{
+                color: isActive("/study") || isActive("#/study") ? "var(--background)" : "var(--cool-steel)",
+                textDecoration: "none",
+              }}
+            >
+              Study Session
             </Nav.Link>
           </Nav>
         </BootstrapNavbar.Collapse>

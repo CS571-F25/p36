@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
-import { useParams, useNavigate } from "react-router";
+import { Container, Row, Col, Button, Card } from "react-bootstrap";
+import { useParams } from "react-router";
 
 import { useStore } from "../store";
 
@@ -63,12 +63,11 @@ function Flashcard({ frontText, backText, isFlipped, onFlip }: FlashcardProps) {
   );
 }
 
-export default function Component() {
+export function Component() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const getSet = useStore((state) => state.getSet);
 
@@ -76,22 +75,9 @@ export default function Component() {
 
   if (!set) {
     return (
-      <Container style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
-        <Row>
-          <Col className="text-center">
-            <h2 style={{ color: "var(--vintage-grape)" }}>Set not found</h2>
-            <Button
-              onClick={() => navigate("/")}
-              style={{
-                backgroundColor: "var(--strawberry-red)",
-                borderColor: "var(--strawberry-red)",
-                marginTop: "1rem",
-              }}
-            >
-              Go Home
-            </Button>
-          </Col>
-        </Row>
+      <Container style={{ paddingTop: "2rem", paddingBottom: "4rem", textAlign: "center" }}>
+        <h2 style={{ color: "var(--ink-black)" }}>Study set not found</h2>
+        <p style={{ color: "var(--vintage-grape)" }}>The study set you're looking for doesn't exist.</p>
       </Container>
     );
   }
@@ -101,30 +87,25 @@ export default function Component() {
   };
 
   const handlePrevious = () => {
-    setCurrentIdx((prev) => {
-      const newIdx = prev - 1;
-      setIsFlipped(false);
-      return newIdx;
-    });
+    setCurrentIdx((prev) => --prev);
+    setIsFlipped(false);
   };
 
   const handleNext = () => {
-    setCurrentIdx((prev) => {
-      const newIdx = prev + 1;
-      setIsFlipped(false);
-      return newIdx;
-    });
+    setCurrentIdx((prev) => ++prev);
+    setIsFlipped(false);
   };
 
   return (
     <Container style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
-      <Row className="mb-3">
+      <Row className="mb-4">
         <Col>
           <h1
             style={{
-              fontSize: "clamp(1.5rem, 4vw, 2rem)",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
               fontWeight: "bold",
               color: "var(--ink-black)",
+              marginBottom: "1rem",
             }}
           >
             {set.name}
@@ -159,81 +140,53 @@ export default function Component() {
         </Col>
       </Row>
 
-      {/* Flip Button */}
-      <Row className="mb-4">
-        <Col className="text-center">
-          <Button
-            onClick={handleFlip}
-            style={{
-              backgroundColor: "var(--strawberry-red)",
-              borderColor: "var(--strawberry-red)",
-              padding: "0.75rem 2rem",
-              fontSize: "1rem",
-              fontWeight: "600",
-            }}
-            size="lg"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--strawberry-red-hover)";
-              e.currentTarget.style.borderColor = "var(--strawberry-red-hover)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
-              e.currentTarget.style.borderColor = "var(--strawberry-red)";
-            }}
-          >
-            FLIP
-          </Button>
-        </Col>
-      </Row>
-
       {/* Navigation Buttons */}
-      <Row>
+      <Row className="mb-4">
         <Col className="text-center">
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
             <Button
-              disabled={currentIdx === 0}
               onClick={handlePrevious}
+              disabled={currentIdx === 0}
               variant="outline-primary"
               style={{
                 borderColor: "var(--twilight-indigo)",
                 color: "var(--twilight-indigo)",
                 padding: "0.5rem 1.5rem",
                 minWidth: "120px",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                if (!e.currentTarget.disabled) {
-                  e.currentTarget.style.backgroundColor = "var(--twilight-indigo)";
-                  e.currentTarget.style.color = "var(--background)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--twilight-indigo)";
               }}
             >
               Previous
             </Button>
             <Button
-              disabled={currentIdx === set.cards.length - 1}
+              onClick={handleFlip}
+              style={{
+                backgroundColor: "var(--strawberry-red)",
+                borderColor: "var(--strawberry-red)",
+                padding: "0.75rem 2rem",
+                fontSize: "1rem",
+                fontWeight: "600",
+              }}
+              size="lg"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--strawberry-red-hover)";
+                e.currentTarget.style.borderColor = "var(--strawberry-red-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
+                e.currentTarget.style.borderColor = "var(--strawberry-red)";
+              }}
+            >
+              FLIP
+            </Button>
+            <Button
               onClick={handleNext}
+              disabled={currentIdx === set.cards.length - 1}
               variant="outline-primary"
               style={{
                 borderColor: "var(--twilight-indigo)",
                 color: "var(--twilight-indigo)",
                 padding: "0.5rem 1.5rem",
                 minWidth: "120px",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                if (!e.currentTarget.disabled) {
-                  e.currentTarget.style.backgroundColor = "var(--twilight-indigo)";
-                  e.currentTarget.style.color = "var(--background)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--twilight-indigo)";
               }}
             >
               Next
