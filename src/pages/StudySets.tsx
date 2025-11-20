@@ -36,7 +36,7 @@ export function Component() {
             role="button"
             tabIndex={0}
             aria-label="Create new study set"
-            onKeyDown={(e) => {
+            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 handleCreateSet();
@@ -48,21 +48,21 @@ export function Component() {
               backgroundColor: "transparent",
               transition: "all 0.3s ease",
             }}
-            onMouseEnter={(e) => {
+            onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
               e.currentTarget.style.borderColor = "var(--strawberry-red)";
               e.currentTarget.style.backgroundColor = "rgba(255, 0, 53, 0.05)";
             }}
-            onMouseLeave={(e) => {
+            onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
               e.currentTarget.style.borderColor = "var(--cool-steel)";
               e.currentTarget.style.backgroundColor = "transparent";
             }}
-            onFocus={(e) => {
+            onFocus={(e: React.FocusEvent<HTMLDivElement>) => {
               e.currentTarget.style.borderColor = "var(--strawberry-red)";
               e.currentTarget.style.backgroundColor = "rgba(255, 0, 53, 0.05)";
               e.currentTarget.style.outline = "2px solid var(--strawberry-red)";
               e.currentTarget.style.outlineOffset = "2px";
             }}
-            onBlur={(e) => {
+            onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
               e.currentTarget.style.borderColor = "var(--cool-steel)";
               e.currentTarget.style.backgroundColor = "transparent";
               e.currentTarget.style.outline = "none";
@@ -107,7 +107,7 @@ export function Component() {
                 role="button"
                 tabIndex={0}
                 aria-label={`Open ${set.name} study set`}
-                onKeyDown={(e) => {
+                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     handleSetClick(set.id);
@@ -119,21 +119,21 @@ export function Component() {
                   border: "1px solid var(--cool-steel)",
                   transition: "all 0.3s ease",
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
                   e.currentTarget.style.transform = "translateY(-2px)";
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.boxShadow = "none";
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
-                onFocus={(e) => {
+                onFocus={(e: React.FocusEvent<HTMLDivElement>) => {
                   e.currentTarget.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
                   e.currentTarget.style.transform = "translateY(-2px)";
                   e.currentTarget.style.outline = "2px solid var(--twilight-indigo)";
                   e.currentTarget.style.outlineOffset = "2px";
                 }}
-                onBlur={(e) => {
+                onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
                   e.currentTarget.style.boxShadow = "none";
                   e.currentTarget.style.transform = "translateY(0)";
                   e.currentTarget.style.outline = "none";
