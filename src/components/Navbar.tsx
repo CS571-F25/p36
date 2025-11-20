@@ -13,7 +13,7 @@ export default function Navbar() {
     <BootstrapNavbar
       expand="lg"
       style={{
-        backgroundColor: "var(--ink-black)",
+        backgroundColor: "var(--strawberry-red)",
         padding: "1rem 0",
       }}
       variant="dark"
@@ -39,6 +39,7 @@ export default function Navbar() {
               to="/"
               style={{
                 color: isActive("/") || isActive("#/") ? "var(--background)" : "var(--cool-steel)",
+                fontWeight: "bold",
                 textDecoration: "none",
               }}
             >
@@ -49,6 +50,7 @@ export default function Navbar() {
               to="/sets"
               style={{
                 color: isActive("/sets") || isActive("#/sets") ? "var(--background)" : "var(--cool-steel)",
+                fontWeight: "bold",
                 textDecoration: "none",
               }}
             >
@@ -59,6 +61,7 @@ export default function Navbar() {
               to="/study"
               style={{
                 color: isActive("/study") || isActive("#/study") ? "var(--background)" : "var(--cool-steel)",
+                fontWeight: "bold",
                 textDecoration: "none",
               }}
             >
