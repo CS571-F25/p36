@@ -16,7 +16,7 @@ export function Component() {
     const formData = new FormData(e.currentTarget);
     const name = String(formData.get("name"));
     const id = createSet(name, flashcards);
-    navigate(`/sets/${id}`);
+    navigate(`/study?setId=${id}`);
   };
 
   const addFlashcard = (e: React.FormEvent<HTMLFormElement>) => {
@@ -191,7 +191,7 @@ export function Component() {
                             <p style={{ color: "var(--vintage-grape)", margin: 0, fontSize: "0.9rem" }}>
                               {flashcard.definition}
                             </p>
-        </div>
+                          </div>
                           <Button
                             variant="outline-danger"
                             size="sm"
@@ -202,9 +202,9 @@ export function Component() {
                               marginLeft: "1rem",
                             }}
                           >
-            Delete
+                          Delete
                           </Button>
-        </div>
+                        </div>
                       </Card.Body>
                     </Card>
                   ))}
