@@ -18,7 +18,7 @@ function Flashcard({ frontText, backText, isFlipped, onFlip }: FlashcardProps) {
       role="button"
       tabIndex={0}
       aria-label={isFlipped ? "Flashcard back side" : "Flashcard front side"}
-      onKeyDown={(e) => {
+      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           onFlip();
@@ -36,11 +36,11 @@ function Flashcard({ frontText, backText, isFlipped, onFlip }: FlashcardProps) {
         alignItems: "center",
         justifyContent: "center",
       }}
-      onFocus={(e) => {
+      onFocus={(e: React.FocusEvent<HTMLDivElement>) => {
         e.currentTarget.style.outline = "3px solid var(--strawberry-red)";
         e.currentTarget.style.outlineOffset = "3px";
       }}
-      onBlur={(e) => {
+      onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
         e.currentTarget.style.outline = "none";
       }}
     >
@@ -148,11 +148,11 @@ export function Component() {
               fontWeight: "600",
             }}
             size="lg"
-            onMouseEnter={(e) => {
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.currentTarget.style.backgroundColor = "var(--strawberry-red-hover)";
               e.currentTarget.style.borderColor = "var(--strawberry-red-hover)";
             }}
-            onMouseLeave={(e) => {
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
               e.currentTarget.style.borderColor = "var(--strawberry-red)";
             }}
@@ -210,11 +210,11 @@ export function Component() {
                 minWidth: "120px",
                 transition: "all 0.2s ease",
               }}
-              onMouseEnter={(e) => {
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
                 e.currentTarget.style.color = "var(--background)";
               }}
-              onMouseLeave={(e) => {
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.color = "var(--strawberry-red)";
               }}
@@ -231,12 +231,12 @@ export function Component() {
                 minWidth: "120px",
                 transition: "all 0.2s ease",
               }}
-              onMouseEnter={(e) => {
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.backgroundColor = "var(--warning-yellow)";
                 e.currentTarget.style.borderColor = "var(--warning-yellow)";
                 e.currentTarget.style.color = "var(--ink-black)";
               }}
-              onMouseLeave={(e) => {
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.borderColor = "var(--twilight-indigo)";
                 e.currentTarget.style.color = "var(--twilight-indigo)";
@@ -254,12 +254,12 @@ export function Component() {
                 minWidth: "120px",
                 transition: "all 0.2s ease",
               }}
-              onMouseEnter={(e) => {
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.backgroundColor = "var(--success-green)";
                 e.currentTarget.style.borderColor = "var(--success-green)";
                 e.currentTarget.style.color = "var(--background)";
               }}
-              onMouseLeave={(e) => {
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.backgroundColor = "transparent";
                 e.currentTarget.style.borderColor = "var(--vintage-grape)";
                 e.currentTarget.style.color = "var(--vintage-grape)";

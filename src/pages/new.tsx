@@ -82,11 +82,11 @@ export function Component() {
                     borderColor: "var(--strawberry-red)",
                     fontWeight: "600",
                   }}
-                  onMouseEnter={(e) => {
+                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.currentTarget.style.backgroundColor = "var(--strawberry-red-hover)";
                     e.currentTarget.style.borderColor = "var(--strawberry-red-hover)";
                   }}
-                  onMouseLeave={(e) => {
+                  onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
                     e.currentTarget.style.borderColor = "var(--strawberry-red)";
                   }}

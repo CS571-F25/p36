@@ -36,11 +36,11 @@ function Flashcard({ frontText, backText, isFlipped, onFlip }: FlashcardProps) {
         alignItems: "center",
         justifyContent: "center",
       }}
-      onFocus={(e) => {
+      onFocus={(e: React.FocusEvent<HTMLDivElement>) => {
         e.currentTarget.style.outline = "3px solid var(--strawberry-red)";
         e.currentTarget.style.outlineOffset = "3px";
       }}
-      onBlur={(e) => {
+      onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
         e.currentTarget.style.outline = "none";
       }}
     >
@@ -167,11 +167,11 @@ export function Component() {
                 fontWeight: "600",
               }}
               size="lg"
-              onMouseEnter={(e) => {
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.backgroundColor = "var(--strawberry-red-hover)";
                 e.currentTarget.style.borderColor = "var(--strawberry-red-hover)";
               }}
-              onMouseLeave={(e) => {
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
                 e.currentTarget.style.borderColor = "var(--strawberry-red)";
               }}
