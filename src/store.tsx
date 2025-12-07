@@ -20,6 +20,7 @@ type State = {
 type Action = {
   getSet: (id: string) => FlashcardSet | undefined;
   createSet: (name: string, cards: Flashcard[]) => string;
+  deleteSet: (id: string) => void;
 };
 
 export const useStore = create<State & Action>()(
@@ -31,6 +32,9 @@ export const useStore = create<State & Action>()(
         const id = nanoid();
         set((state) => ({ sets: [...state.sets, { id, name, cards }] }));
         return id;
+      },
+      deleteSet(id) {
+        set((state) => ({ sets: state.sets.filter((set) => set.id !== id) }));
       },
     }),
     {

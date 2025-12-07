@@ -6,7 +6,11 @@ export default function Navbar() {
 
   const isActive = (path: string) => {
     const hashPath = `#${path}`;
-    return location.pathname === path || location.hash === hashPath || location.hash === path;
+    return (
+      location.pathname === path ||
+      location.hash === hashPath ||
+      location.hash === path
+    );
   };
 
   return (
@@ -36,36 +40,31 @@ export default function Navbar() {
           <Nav className="ms-auto">
             <Nav.Link
               as={Link}
-              to="/"
-              style={{
-                color: isActive("/") || isActive("#/") ? "var(--background)" : "var(--cool-steel)",
-                fontWeight: "bold",
-                textDecoration: "none",
-              }}
-            >
-              Home
-            </Nav.Link>
-            <Nav.Link
-              as={Link}
               to="/sets"
               style={{
-                color: isActive("/sets") || isActive("#/sets") ? "var(--background)" : "var(--cool-steel)",
+                textDecoration:
+                  isActive("/sets") || isActive("#/sets")
+                    ? "underline"
+                    : "none",
                 fontWeight: "bold",
-                textDecoration: "none",
+                color: "var(--background)",
               }}
             >
               Study Sets
             </Nav.Link>
             <Nav.Link
               as={Link}
-              to="/study"
+              to="/sets/new"
               style={{
-                color: isActive("/study") || isActive("#/study") ? "var(--background)" : "var(--cool-steel)",
+                color:
+                  isActive("/study") || isActive("#/study")
+                    ? "var(--background)"
+                    : "var(--cool-steel)",
                 fontWeight: "bold",
                 textDecoration: "none",
               }}
             >
-              Study Session
+              Create New Set
             </Nav.Link>
           </Nav>
         </BootstrapNavbar.Collapse>
@@ -73,4 +72,3 @@ export default function Navbar() {
     </BootstrapNavbar>
   );
 }
-

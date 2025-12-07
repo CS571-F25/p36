@@ -9,38 +9,23 @@ const router = createHashRouter([
     children: [
       {
         index: true,
-        lazy: async () => {
-          const module = await import("./pages/home");
-          return { Component: module.Component };
-        },
+        lazy: () => import("./pages/home"),
       },
       {
         path: "sets",
-        lazy: async () => {
-          const module = await import("./pages/StudySets");
-          return { Component: module.Component };
-        },
+        lazy: () => import("./pages/sets"),
       },
       {
         path: "sets/new",
-        lazy: async () => {
-          const module = await import("./pages/new");
-          return { Component: module.Component };
-        },
-      },
-      {
-        path: "study",
-        lazy: async () => {
-          const module = await import("./pages/StudySession");
-          return { Component: module.Component };
-        },
+        lazy: () => import("./pages/new"),
       },
       {
         path: "sets/:id",
-        lazy: async () => {
-          const module = await import("./pages/set");
-          return { Component: module.Component };
-        },
+        lazy: () => import("./pages/set"),
+      },
+      {
+        path: "master/:id",
+        lazy:()=>import("./pages/master"),
       },
     ],
   },
