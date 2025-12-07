@@ -38,7 +38,7 @@ export default function Navbar() {
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link
+          <Nav.Link
               as={Link}
               to="/sets"
               style={{
@@ -46,6 +46,7 @@ export default function Navbar() {
                   isActive("/sets") || isActive("#/sets")
                     ? "underline"
                     : "none",
+                textUnderlineOffset: isActive("/sets") || isActive("#/sets") ? "0.5rem" : "0",
                 fontWeight: "bold",
                 color: "var(--background)",
               }}
@@ -56,12 +57,13 @@ export default function Navbar() {
               as={Link}
               to="/sets/new"
               style={{
-                color:
-                  isActive("/study") || isActive("#/study")
-                    ? "var(--background)"
-                    : "var(--cool-steel)",
+                textDecoration:
+                  isActive("/sets/new") || isActive("#/sets/new")
+                    ? "underline"
+                    : "none",
+                textUnderlineOffset: isActive("/sets/new") || isActive("#/sets/new") ? "0.5rem" : "0",
                 fontWeight: "bold",
-                textDecoration: "none",
+                color: "var(--background)",
               }}
             >
               Create New Set
