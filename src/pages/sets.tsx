@@ -1,10 +1,12 @@
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { useNavigate } from "react-router";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 import { useStore } from "../store";
 
 export function Component() {
   const sets = useStore((state) => state.sets);
+  const deleteSet = useStore((state) => state.deleteSet);
   const navigate = useNavigate();
 
   const handleCreateSet = () => {
@@ -13,6 +15,19 @@ export function Component() {
 
   const handleSetClick = (setId: string) => {
     navigate(`/sets/${setId}`);
+  };
+
+  const handleDeleteSet = (e: React.MouseEvent, setId: string) => {
+    e.stopPropagation(); // Prevent card click
+    if (window.confirm("Are you sure you want to delete this set?")) {
+      deleteSet(setId);
+    }
+  };
+
+  const handleEditSet = (e: React.MouseEvent, setId: string) => {
+    e.stopPropagation(); // Prevent card click
+    // TODO: Implement edit functionality
+    console.log("Edit set:", setId);
   };
 
   return (
@@ -79,6 +94,59 @@ export function Component() {
                 }}
               >
                 <Card.Body>
+                {/* Edit and delete buttons */}
+                <div
+                    style={{
+                      position: "absolute",
+                      top: "0.5rem",
+                      right: "0.5rem",
+                      display: "flex",
+                      gap: "0.5rem",
+                    }}
+                  >
+                  <Button
+                      variant="link"
+                      onClick={(e) => handleEditSet(e, set.id)}
+                      aria-label="Edit set"
+                      style={{
+                        padding: "0.25rem 0.5rem",
+                        color: "var(--twilight-indigo)",
+                        textDecoration: "none",
+                        lineHeight: "1",
+                      }}
+                      onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.currentTarget.style.color = "var(--vintage-grape)";
+                        e.currentTarget.style.backgroundColor = "rgba(56, 64, 95, 0.1)";
+                      }}
+                      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.currentTarget.style.color = "var(--twilight-indigo)";
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                    >
+                      <FaEdit size={18} />
+                    </Button>
+                    <Button
+                      variant="link"
+                      onClick={(e) => handleDeleteSet(e, set.id)}
+                      aria-label="Delete set"
+                      style={{
+                        padding: "0.25rem 0.5rem",
+                        color: "var(--strawberry-red)",
+                        textDecoration: "none",
+                        lineHeight: "1",
+                      }}
+                      onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.currentTarget.style.color = "var(--strawberry-red-hover)";
+                        e.currentTarget.style.backgroundColor = "rgba(227, 33, 59, 0.1)";
+                      }}
+                      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        e.currentTarget.style.color = "var(--strawberry-red)";
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
+                    >
+                      <FaTrash size={18} />
+                    </Button>
+                  </div>
                   <Card.Title
                     style={{
                       color: "var(--ink-black)",
