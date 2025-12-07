@@ -5,7 +5,6 @@ import { nanoid } from "nanoid";
 export type Flashcard = {
   term: string;
   definition: string;
-  status?: "Unsure" | "Learning" | "Mastered";
 };
 
 type FlashcardSet = {
@@ -22,11 +21,6 @@ type Action = {
   getSet: (id?: string) => FlashcardSet | undefined;
   createSet: (name: string, cards: Flashcard[]) => string;
   deleteSet: (id: string) => void;
-  updateCardStatus: (
-    setId: string,
-    cardIndex: number,
-    status: "Unsure" | "Learning" | "Mastered",
-  ) => void;
 };
 
 export const useStore = create<State & Action>()(
@@ -42,19 +36,6 @@ export const useStore = create<State & Action>()(
       },
       deleteSet(id) {
         set((state) => ({ sets: state.sets.filter((set) => set.id !== id) }));
-      },
-      updateCardStatus(setId, cardIndex, status) {
-        set((state) => ({
-          sets: state.sets.map((s) => {
-            if (s.id !== setId) return s;
-            // guard for out-of-range index
-            if (cardIndex < 0 || cardIndex >= s.cards.length) return s;
-            const updatedCards = s.cards.map((c, idx) =>
-              idx === cardIndex ? { ...c, status } : c,
-            );
-            return { ...s, cards: updatedCards };
-          }),
-        }));
       },
     }),
     {
