@@ -1,110 +1,67 @@
 import { useState } from "react";
-import { Container, Row, Col, Button, Card } from "react-bootstrap";
-import { useSearchParams } from "react-router";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { useParams } from "react-router";
 
 import { useStore } from "../store";
-
-interface FlashcardProps {
-  frontText: string;
-  backText: string;
-  isFlipped: boolean;
-  onFlip: () => void;
-}
-
-function Flashcard({ frontText, backText, isFlipped, onFlip }: FlashcardProps) {
-  return (
-    <Card
-      onClick={onFlip}
-      role="button"
-      tabIndex={0}
-      aria-label={isFlipped ? "Flashcard back side" : "Flashcard front side"}
-      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onFlip();
-        }
-      }}
-      style={{
-        minHeight: "400px",
-        cursor: "pointer",
-        border: "2px solid var(--twilight-indigo)",
-        borderRadius: "1rem",
-        backgroundColor: isFlipped ? "var(--twilight-indigo)" : "var(--background)",
-        color: isFlipped ? "var(--background)" : "var(--ink-black)",
-        transition: "all 0.3s ease",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      onFocus={(e: React.FocusEvent<HTMLDivElement>) => {
-        e.currentTarget.style.outline = "3px solid var(--strawberry-red)";
-        e.currentTarget.style.outlineOffset = "3px";
-      }}
-      onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
-        e.currentTarget.style.outline = "none";
-      }}
-    >
-      <Card.Body
-        style={{
-          textAlign: "center",
-          padding: "3rem",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "2rem",
-            fontWeight: "600",
-          }}
-        >
-          {isFlipped ? backText : frontText}
-        </h2>
-      </Card.Body>
-    </Card>
-  );
-}
+import Flashcard from "../components/flashcard";
 
 export function Component() {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [searchParams] = useSearchParams();
-  const setId = searchParams.get("setId");
+  const { id } = useParams();
 
   const getSet = useStore((state) => state.getSet);
-  const set = setId ? getSet(setId) : null;
+  const set = getSet(id);
+  const updateCardStatus = useStore((s) => s.updateCardStatus);
 
-  // Placeholder data if no set is selected
-  const placeholderCards = [
-    { term: "Front of card", definition: "Back of card" },
-    { term: "Sample Question", definition: "Sample Answer" },
-    { term: "Another Term", definition: "Another Definition" },
-  ];
-
-  const cards = set?.cards || placeholderCards;
-  const totalCards = cards.length;
-  const currentCard = cards[currentIndex] || cards[0];
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [currentIndex, setCurrentIdx] = useState(0);
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
 
   const handleStatusClick = (status: string) => {
-    // TODO: implement status tracking later
-    // Placeholder for future status tracking functionality
-  };
-
-  const handleNext = () => {
-    if (currentIndex < totalCards - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setIsFlipped(false);
+    if (!set) return;
+    // Only accept the three known statuses
+    const allowed = ["Unsure", "Learning", "Mastered"];
+    if (!allowed.includes(status)) return;
+    updateCardStatus(
+      set.id,
+      currentIndex,
+      status as "Unsure" | "Learning" | "Mastered",
+    );
+    setIsFlipped(false);
+    // Advance to next card if not at the end
+    if (currentIndex < set.cards.length - 1) {
+      setCurrentIdx((prev) => prev + 1);
     }
   };
 
   const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-      setIsFlipped(false);
-    }
+    setCurrentIdx((prev) => --prev);
+    setIsFlipped(false);
   };
+
+  const handleNext = () => {
+    setCurrentIdx((prev) => ++prev);
+    setIsFlipped(false);
+  };
+
+  if (!set) {
+    return (
+      <Container
+        style={{
+          paddingTop: "2rem",
+          paddingBottom: "4rem",
+          textAlign: "center",
+        }}
+      >
+        <h2 style={{ color: "var(--ink-black)" }}>Study set not found</h2>
+        <p style={{ color: "var(--vintage-grape)" }}>
+          The study set you're looking for doesn't exist.
+        </p>
+      </Container>
+    );
+  }
 
   return (
     <Container style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
@@ -118,7 +75,7 @@ export function Component() {
               fontWeight: "600",
             }}
           >
-            {currentIndex + 1} / {totalCards}
+            {currentIndex + 1} / {set.cards.length}
           </h3>
         </Col>
       </Row>
@@ -127,8 +84,8 @@ export function Component() {
       <Row className="mb-4">
         <Col md={8} className="mx-auto">
           <Flashcard
-            frontText={currentCard.term}
-            backText={currentCard.definition}
+            frontText={set.cards[currentIndex].term}
+            backText={set.cards[currentIndex].definition}
             isFlipped={isFlipped}
             onFlip={handleFlip}
           />
@@ -145,11 +102,12 @@ export function Component() {
               borderColor: "var(--strawberry-red)",
               padding: "0.75rem 2rem",
               fontSize: "1rem",
-              fontWeight: "600", 
+              fontWeight: "600",
             }}
             size="lg"
             onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.backgroundColor = "var(--strawberry-red-hover)";
+              e.currentTarget.style.backgroundColor =
+                "var(--strawberry-red-hover)";
               e.currentTarget.style.borderColor = "var(--strawberry-red-hover)";
             }}
             onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
@@ -165,7 +123,14 @@ export function Component() {
       {/* Navigation Buttons */}
       <Row className="mb-4">
         <Col className="text-center">
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <Button
               onClick={handlePrevious}
               disabled={currentIndex === 0}
@@ -181,7 +146,7 @@ export function Component() {
             </Button>
             <Button
               onClick={handleNext}
-              disabled={currentIndex === totalCards - 1}
+              disabled={currentIndex === set.cards.length - 1}
               variant="outline-primary"
               style={{
                 borderColor: "var(--twilight-indigo)",
@@ -199,7 +164,14 @@ export function Component() {
       {/* Status Buttons */}
       <Row>
         <Col className="text-center">
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
             <Button
               onClick={() => handleStatusClick("Unsure")}
               variant="outline-danger"
@@ -273,4 +245,3 @@ export function Component() {
     </Container>
   );
 }
-
