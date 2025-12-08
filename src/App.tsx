@@ -20,6 +20,10 @@ const router = createHashRouter([
         lazy: () => import("./pages/new"),
       },
       {
+        path: "sets/:id/edit",
+        lazy: () => import("./pages/new"),
+      },
+      {
         path: "sets/:id",
         lazy: () => import("./pages/set"),
       },

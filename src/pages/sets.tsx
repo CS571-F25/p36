@@ -26,8 +26,7 @@ export function Component() {
 
   const handleEditSet = (e: React.MouseEvent, setId: string) => {
     e.stopPropagation(); // Prevent card click
-    // TODO: Implement edit functionality
-    console.log("Edit set:", setId);
+    navigate(`/sets/${setId}/edit`);
   };
 
   return (
@@ -69,6 +68,7 @@ export function Component() {
                   height: "100%",
                   border: "1px solid var(--cool-steel)",
                   transition: "all 0.3s ease",
+                  position: "relative",
                 }}
                 onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                   e.currentTarget.style.boxShadow =
@@ -152,6 +152,7 @@ export function Component() {
                       color: "var(--ink-black)",
                       fontWeight: "600",
                       marginBottom: "0.75rem",
+                      paddingRight: "4rem", // Add padding to prevent overlap with buttons
                     }}
                   >
                     {set.name}
