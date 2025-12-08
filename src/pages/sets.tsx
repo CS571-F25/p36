@@ -30,6 +30,11 @@ export function Component() {
     navigate(`/master/${setId}`);
   };
 
+  const handleEditSet = (e: React.MouseEvent, setId: string) => {
+    e.stopPropagation(); // Prevent card click
+    navigate(`/sets/${setId}/edit`);
+  };
+
   return (
     <Container
       style={{
@@ -57,6 +62,7 @@ export function Component() {
                 set={set}
                 onSetClick={handleSetClick}
                 onMasterClick={handleMasterSet}
+                onEditClick={handleEditSet}
                 onDeleteClick={handleDeleteSet}
               />
             </Col>

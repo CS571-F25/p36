@@ -1,22 +1,50 @@
 import * as React from "react";
 import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 import { type Flashcard, useStore } from "../store";
 
 export function Component() {
+  const { id } = useParams<{ id?: string }>();
+  const isEditMode = Boolean(id);
+  
   const [flashcards, setFlashcards] = React.useState<Flashcard[]>([]);
+  const nameInputRef = React.useRef<HTMLInputElement>(null);
 
   const createSet = useStore((state) => state.createSet);
+  const updateSet = useStore((state) => state.updateSet);
+  const getSet = useStore((state) => state.getSet);
 
   const navigate = useNavigate();
+
+  // Load set data if in edit mode
+  React.useEffect(() => {
+    if (isEditMode && id) {
+      const existingSet = getSet(id);
+      if (existingSet) {
+        setFlashcards(existingSet.cards);
+        if (nameInputRef.current) {
+          nameInputRef.current.value = existingSet.name;
+        }
+      } else {
+        // Set not found, redirect to sets page
+        navigate("/sets");
+      }
+    }
+  }, [isEditMode, id, getSet, navigate]);
 
   const createFlashcardSet = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = String(formData.get("name"));
-    createSet(name, flashcards);
-    navigate("/sets");
+
+    if (isEditMode && id) {
+      updateSet(id, name, flashcards);
+      navigate("/sets");
+    } else {
+      createSet(name, flashcards);
+      navigate("/sets");
+    }
   };
 
   const addFlashcard = (e: React.FormEvent<HTMLFormElement>) => {
@@ -28,8 +56,8 @@ export function Component() {
     e.currentTarget.reset();
   };
 
-  const deleteFlashcard = (term: string) => {
-    setFlashcards((prev) => prev.filter((card) => card.term !== term));
+  const deleteFlashcard = (index: number) => {
+    setFlashcards((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -42,7 +70,7 @@ export function Component() {
           marginBottom: "2rem",
         }}
       >
-        Create New Study Set
+        {isEditMode ? "Edit Study Set" : "Create New Study Set"}
       </h1>
 
       <Row>
@@ -64,6 +92,7 @@ export function Component() {
                     Set Name
                   </Form.Label>
                   <Form.Control
+                    ref={nameInputRef}
                     id="name"
                     name="name"
                     type="text"
@@ -91,7 +120,7 @@ export function Component() {
                     e.currentTarget.style.borderColor = "var(--strawberry-red)";
                   }}
                 >
-                  Create Set ({flashcards.length} {flashcards.length === 1 ? "card" : "cards"})
+                  {isEditMode ? "Update Set" : "Create Set"} ({flashcards.length} {flashcards.length === 1 ? "card" : "cards"})
                 </Button>
               </Form>
             </Card.Body>
@@ -186,7 +215,7 @@ export function Component() {
                 <div style={{ maxHeight: "500px", overflowY: "auto" }}>
                   {flashcards.map((flashcard, index) => (
                     <Card
-                      key={flashcard.term}
+                      key={index}
                       className="mb-3"
                       style={{
                         border: "1px solid var(--cool-steel)",
@@ -206,7 +235,7 @@ export function Component() {
                           <Button
                             variant="outline-danger"
                             size="sm"
-                            onClick={() => deleteFlashcard(flashcard.term)}
+                            onClick={() => deleteFlashcard(index)}
                             style={{
                               borderColor: "var(--strawberry-red)",
                               color: "var(--strawberry-red)",
