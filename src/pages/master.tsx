@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Button, Card, Form } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router";
 
 import { useStore, type Flashcard as FlashcardType } from "../store";
+import FeedbackDisplay from "../components/FeedbackDisplay";
 
 type FeedbackType = "correct" | "incorrect" | null;
 
@@ -61,6 +62,14 @@ export function Component() {
   const [masteryMap, setMasteryMap] = useState<
     ("Unsure" | "Learning" | "Mastered" | undefined)[]
   >([]);
+  const continueButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Auto-focus Continue button when answer is shown
+  useEffect(() => {
+    if (isAnswered && continueButtonRef.current) {
+      continueButtonRef.current.focus();
+    }
+  }, [isAnswered]);
 
   // Initialize or update current card when set changes
   useEffect(() => {
@@ -207,15 +216,25 @@ export function Component() {
               </Button>
               <Button
                 onClick={handleRedo}
-                variant="outline-primary"
                 style={{
-                  borderColor: "var(--twilight-indigo)",
-                  color: "var(--twilight-indigo)",
+                  backgroundColor: "var(--ink-black)",
+                  borderColor: "var(--ink-black)",
+                  color: "var(--background)",
                   padding: "0.75rem 2rem",
                   fontSize: "1rem",
                   fontWeight: "600",
                 }}
                 size="lg"
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.backgroundColor = "var(--background)";
+                  e.currentTarget.style.borderColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--ink-black)";
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.backgroundColor = "var(--ink-black)";
+                  e.currentTarget.style.borderColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--background)";
+                }}
               >
                 Redo Mastery
               </Button>
@@ -291,6 +310,9 @@ export function Component() {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !isAnswered) {
       handleSubmitAnswer();
+    } else if ((e.key === "Enter" || e.key === " ") && isAnswered) {
+      e.preventDefault();
+      handleNextAfterAnswer();
     }
   };
 
@@ -370,13 +392,16 @@ export function Component() {
               borderColor: isAnswered
                 ? feedback === "correct"
                   ? "var(--success-green)"
-                  : "var(--strawberry-red)"
+                  : "var(--ink-black)"
                 : "var(--twilight-indigo)",
               backgroundColor: isAnswered
                 ? feedback === "correct"
                   ? "rgba(101, 204, 138, 0.1)"
-                  : "rgba(255, 0, 53, 0.1)"
+                  : "rgba(0, 0, 0, 0.05)"
                 : "var(--background)",
+              boxShadow: isAnswered && feedback === "incorrect"
+                ? "0 2px 4px rgba(0, 0, 0, 0.2)"
+                : "none",
               color: "var(--ink-black)",
             }}
           />
@@ -387,46 +412,10 @@ export function Component() {
       {isAnswered && (
         <Row className="mb-4">
           <Col md={8} className="mx-auto">
-            <div
-              style={{
-                padding: "1.5rem",
-                borderRadius: "0.5rem",
-                backgroundColor:
-                  feedback === "correct"
-                    ? "rgba(101, 204, 138, 0.15)"
-                    : "rgba(255, 0, 53, 0.15)",
-                border: `2px solid ${
-                  feedback === "correct"
-                    ? "var(--success-green)"
-                    : "var(--strawberry-red)"
-                }`,
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "2rem",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {feedback === "correct" ? "✓" : "✗"}
-              </div>
-              <p
-                style={{
-                  color:
-                    feedback === "correct"
-                      ? "var(--success-green)"
-                      : "var(--strawberry-red)",
-                  fontWeight: "600",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {feedback === "correct" ? "Correct!" : "Incorrect"}
-              </p>
-              <p style={{ color: "var(--ink-black)", marginBottom: 0 }}>
-                <strong>Definition:</strong> {currentCard.definition}
-              </p>
-            </div>
+            <FeedbackDisplay
+              isCorrect={feedback === "correct"}
+              definition={currentCard.definition}
+            />
           </Col>
         </Row>
       )}
@@ -446,6 +435,14 @@ export function Component() {
               <Button
                 onClick={handleSubmitAnswer}
                 disabled={!userInput.trim()}
+                tabIndex={!userInput.trim() ? -1 : 0}
+                aria-label="Submit answer"
+                onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                  if ((e.key === "Enter" || e.key === " ") && userInput.trim()) {
+                    e.preventDefault();
+                    handleSubmitAnswer();
+                  }
+                }}
                 style={{
                   backgroundColor: "var(--strawberry-red)",
                   borderColor: "var(--strawberry-red)",
@@ -459,13 +456,31 @@ export function Component() {
               </Button>
               <Button
                 onClick={handleSkip}
-                variant="outline-secondary"
+                tabIndex={0}
+                aria-label="Skip this card"
+                onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSkip();
+                  }
+                }}
                 style={{
-                  borderColor: "var(--twilight-indigo)",
-                  color: "var(--twilight-indigo)",
+                  backgroundColor: "var(--ink-black)",
+                  borderColor: "var(--ink-black)",
+                  color: "var(--background)",
                   padding: "0.75rem 2rem",
                   fontSize: "1rem",
                   fontWeight: "600",
+                }}
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.backgroundColor = "var(--background)";
+                  e.currentTarget.style.borderColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--ink-black)";
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.backgroundColor = "var(--ink-black)";
+                  e.currentTarget.style.borderColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--background)";
                 }}
               >
                 Skip
@@ -481,7 +496,16 @@ export function Component() {
               }}
             >
               <Button
+                ref={continueButtonRef}
                 onClick={handleNextAfterAnswer}
+                tabIndex={0}
+                aria-label="Continue to next card"
+                onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleNextAfterAnswer();
+                  }
+                }}
                 style={{
                   backgroundColor:
                     feedback === "correct"
