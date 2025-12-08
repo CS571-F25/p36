@@ -51,7 +51,7 @@ export function Component() {
   const { id } = useParams();
   const navigate = useNavigate();
   const getSet = useStore((state) => state.getSet);
-  const set = getSet(id);
+  const set = getSet(id || "");
 
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [userInput, setUserInput] = useState("");

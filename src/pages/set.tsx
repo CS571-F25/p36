@@ -78,7 +78,7 @@ export function Component() {
 
   const getSet = useStore((state) => state.getSet);
 
-  const set = getSet(id);
+  const set = getSet(id || "");
 
   if (!set) {
     return (
