@@ -7,7 +7,7 @@ export type Flashcard = {
   definition: string;
 };
 
-type FlashcardSet = {
+export type FlashcardSet = {
   id: string;
   name: string;
   cards: Flashcard[];

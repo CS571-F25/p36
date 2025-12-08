@@ -1,50 +1,119 @@
-import { useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { useParams } from "react-router";
+import { useState, useEffect, useRef } from "react";
+import { Container, Row, Col, Button, Card, Form } from "react-bootstrap";
+import { useParams, useNavigate } from "react-router";
 
-import { useStore } from "../store";
-import Flashcard from "../components/flashcard";
+import { useStore, type Flashcard as FlashcardType } from "../store";
+import FeedbackDisplay from "../components/FeedbackDisplay";
+
+type FeedbackType = "correct" | "incorrect" | null;
+
+// Helper: Weighted random selection biased toward lower mastery cards
+function getWeightedRandomCard(
+  cards: FlashcardType[],
+  mastery?: ("Unsure" | "Learning" | "Mastered" | undefined)[],
+): number {
+  // Get indices of cards that aren't mastered yet using optional local mastery map
+  const nonMasteredIndices = cards
+    .map((c, i) => i)
+    .filter((i) => {
+      const status =
+        mastery && mastery.length === cards.length ? mastery[i] : undefined;
+      return status !== "Mastered";
+    });
+
+  if (nonMasteredIndices.length === 0) {
+    return -1; // All cards mastered
+  }
+
+  // Weight: Mastered = 1, Learning = 3, Unsure = 5 (higher weight = more likely to appear)
+  const weights = nonMasteredIndices.map((i) => {
+    const status =
+      mastery && mastery.length === cards.length ? mastery[i] : undefined;
+    if (status === "Mastered") return 1;
+    if (status === "Learning") return 3;
+    return 5; // Unsure or undefined
+  });
+
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  let random = Math.random() * totalWeight;
+
+  for (let j = 0; j < weights.length; j++) {
+    random -= weights[j];
+    if (random <= 0) {
+      return nonMasteredIndices[j];
+    }
+  }
+
+  return nonMasteredIndices[nonMasteredIndices.length - 1];
+}
 
 export function Component() {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const getSet = useStore((state) => state.getSet);
   const set = getSet(id);
-  const updateCardStatus = useStore((s) => s.updateCardStatus);
 
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [currentIndex, setCurrentIdx] = useState(0);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [userInput, setUserInput] = useState("");
+  const [feedback, setFeedback] = useState<FeedbackType>(null);
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [allMastered, setAllMastered] = useState(false);
+  // Local mastery state persisted to localStorage per-set so user can redo later
+  const [masteryMap, setMasteryMap] = useState<
+    ("Unsure" | "Learning" | "Mastered" | undefined)[]
+  >([]);
+  const continueButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
-
-  const handleStatusClick = (status: string) => {
-    if (!set) return;
-    // Only accept the three known statuses
-    const allowed = ["Unsure", "Learning", "Mastered"];
-    if (!allowed.includes(status)) return;
-    updateCardStatus(
-      set.id,
-      currentIndex,
-      status as "Unsure" | "Learning" | "Mastered",
-    );
-    setIsFlipped(false);
-    // Advance to next card if not at the end
-    if (currentIndex < set.cards.length - 1) {
-      setCurrentIdx((prev) => prev + 1);
+  // Auto-focus Continue button when answer is shown
+  useEffect(() => {
+    if (isAnswered && continueButtonRef.current) {
+      continueButtonRef.current.focus();
     }
-  };
+  }, [isAnswered]);
 
-  const handlePrevious = () => {
-    setCurrentIdx((prev) => --prev);
-    setIsFlipped(false);
-  };
+  // Initialize or update current card when set changes
+  useEffect(() => {
+    if (!set) return;
+    // Initialize local mastery map from localStorage or default
+    const key = `mastery_${set.id}`;
+    const raw = localStorage.getItem(key);
+    let initial: ("Unsure" | "Learning" | "Mastered" | undefined)[] = [];
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) initial = parsed;
+      } catch {
+        // Invalid localStorage data, start fresh
+      }
+    }
+    // Ensure length matches number of cards
+    if (initial.length !== set.cards.length) {
+      initial = Array(set.cards.length).fill(undefined);
+    }
+    setMasteryMap(initial);
+    // Select first random card on load
+    const firstCard = getWeightedRandomCard(set.cards, initial);
+    if (firstCard === -1) {
+      setAllMastered(true);
+    } else {
+      setCurrentCardIndex(firstCard);
+    }
+  }, [id, set]);
 
-  const handleNext = () => {
-    setCurrentIdx((prev) => ++prev);
-    setIsFlipped(false);
-  };
+  // Monitor if all cards are mastered using local masteryMap
+  useEffect(() => {
+    if (!set) return;
+    if (masteryMap.length !== set.cards.length) return;
+    const allDone = masteryMap.every((s) => s === "Mastered");
+    setAllMastered(allDone);
+  }, [masteryMap, set]);
+
+  // Persist masteryMap to localStorage
+  useEffect(() => {
+    if (!set) return;
+    const key = `mastery_${set.id}`;
+    localStorage.setItem(key, JSON.stringify(masteryMap));
+  }, [masteryMap, set]);
 
   if (!set) {
     return (
@@ -63,183 +132,399 @@ export function Component() {
     );
   }
 
+  if (allMastered) {
+    const handleRedo = () => {
+      if (!set) return;
+      const key = `mastery_${set.id}`;
+      const initial = Array(set.cards.length).fill(undefined);
+      setMasteryMap(initial);
+      localStorage.setItem(key, JSON.stringify(initial));
+      setAllMastered(false);
+      setUserInput("");
+      setFeedback(null);
+      setIsAnswered(false);
+      const firstCard = getWeightedRandomCard(set.cards, initial);
+      if (firstCard !== -1) setCurrentCardIndex(firstCard);
+    };
+    return (
+      <Container
+        style={{
+          paddingTop: "4rem",
+          paddingBottom: "4rem",
+          textAlign: "center",
+          minHeight: "80vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Row>
+          <Col>
+            <div
+              style={{
+                fontSize: "5rem",
+                marginBottom: "2rem",
+              }}
+            >
+              🎉
+            </div>
+            <h2
+              style={{
+                color: "var(--success-green)",
+                fontWeight: "bold",
+                fontSize: "2.5rem",
+                marginBottom: "1rem",
+              }}
+            >
+              All Cards Mastered!
+            </h2>
+            <p
+              style={{
+                color: "var(--vintage-grape)",
+                fontSize: "1.25rem",
+                marginBottom: "2rem",
+              }}
+            >
+              You've successfully mastered all {set.cards.length} cards.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <Button
+                onClick={() => navigate("/sets")}
+                style={{
+                  backgroundColor: "var(--success-green)",
+                  borderColor: "var(--success-green)",
+                  padding: "0.75rem 2rem",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                }}
+                size="lg"
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.opacity = "0.85";
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.opacity = "1";
+                }}
+              >
+                Back to Sets
+              </Button>
+              <Button
+                onClick={handleRedo}
+                style={{
+                  backgroundColor: "var(--ink-black)",
+                  borderColor: "var(--ink-black)",
+                  color: "var(--background)",
+                  padding: "0.75rem 2rem",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                }}
+                size="lg"
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.backgroundColor = "var(--background)";
+                  e.currentTarget.style.borderColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--ink-black)";
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.backgroundColor = "var(--ink-black)";
+                  e.currentTarget.style.borderColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--background)";
+                }}
+              >
+                Redo Mastery
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    );
+  }
+
+  const currentCard = set.cards[currentCardIndex];
+
+  const handleSubmitAnswer = () => {
+    if (!userInput.trim()) return;
+
+    const correct =
+      userInput.toLowerCase().trim() ===
+      currentCard.definition.toLowerCase().trim();
+
+    setFeedback(correct ? "correct" : "incorrect");
+    setIsAnswered(true);
+    // Update local mastery based on correctness
+    setMasteryMap((prev) => {
+      const next = [...prev];
+      const cur = next[currentCardIndex];
+      if (correct) {
+        // promote: undefined/Unsure -> Learning, Learning -> Mastered
+        if (cur === "Learning") next[currentCardIndex] = "Mastered";
+        else next[currentCardIndex] = "Learning";
+      } else {
+        // incorrect => mark as Unsure
+        next[currentCardIndex] = "Unsure";
+      }
+      return next;
+    });
+  };
+
+  // Skip current card for this turn (do not change mastery)
+  const handleSkip = () => {
+    setUserInput("");
+    setFeedback(null);
+    setIsAnswered(false);
+    // Pick next random card (avoid immediate repeat)
+    const nextCard = getWeightedRandomCard(set.cards, masteryMap);
+    if (nextCard === -1) {
+      setAllMastered(true);
+      return;
+    }
+    if (nextCard === currentCardIndex) {
+      // try once more to avoid repeat
+      const alt = getWeightedRandomCard(set.cards, masteryMap);
+      if (alt !== -1 && alt !== currentCardIndex) setCurrentCardIndex(alt);
+    } else {
+      setCurrentCardIndex(nextCard);
+    }
+  };
+
+  const handleNextAfterAnswer = () => {
+    setUserInput("");
+    setFeedback(null);
+    setIsAnswered(false);
+    const nextCard = getWeightedRandomCard(set.cards, masteryMap);
+    if (nextCard === -1) {
+      setAllMastered(true);
+    } else if (nextCard === currentCardIndex) {
+      const alt = getWeightedRandomCard(set.cards, masteryMap);
+      if (alt !== -1) setCurrentCardIndex(alt);
+    } else {
+      setCurrentCardIndex(nextCard);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !isAnswered) {
+      handleSubmitAnswer();
+    } else if ((e.key === "Enter" || e.key === " ") && isAnswered) {
+      e.preventDefault();
+      handleNextAfterAnswer();
+    }
+  };
+
   return (
     <Container style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
-      {/* Counter */}
+      {/* Header with set info */}
       <Row className="mb-4">
         <Col className="text-center">
-          <h3
+          <h2
             style={{
-              fontSize: "1.5rem",
-              color: "var(--vintage-grape)",
-              fontWeight: "600",
+              color: "var(--ink-black)",
+              fontWeight: "bold",
+              marginBottom: "0.5rem",
             }}
           >
-            {currentIndex + 1} / {set.cards.length}
-          </h3>
+            {set.name}
+          </h2>
+          <p style={{ color: "var(--vintage-grape)" }}>
+            {masteryMap.filter((c) => c === "Mastered").length} /{" "}
+            {set.cards.length} cards mastered
+          </p>
         </Col>
       </Row>
 
-      {/* Flashcard */}
+      {/* Card Display */}
       <Row className="mb-4">
         <Col md={8} className="mx-auto">
-          <Flashcard
-            frontText={set.cards[currentIndex].term}
-            backText={set.cards[currentIndex].definition}
-            isFlipped={isFlipped}
-            onFlip={handleFlip}
+          <Card
+            style={{
+              minHeight: "300px",
+              border: "2px solid var(--twilight-indigo)",
+              borderRadius: "1rem",
+              backgroundColor: "var(--background)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Card.Body style={{ textAlign: "center", padding: "3rem" }}>
+              <p
+                style={{
+                  color: "var(--vintage-grape)",
+                  fontSize: "0.9rem",
+                  marginBottom: "1rem",
+                  fontWeight: "500",
+                }}
+              >
+                What is the definition of:
+              </p>
+              <h2
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "600",
+                  color: "var(--ink-black)",
+                }}
+              >
+                {currentCard.term}
+              </h2>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Input Field */}
+      <Row className="mb-4">
+        <Col md={8} className="mx-auto">
+          <Form.Control
+            type="text"
+            placeholder="Type the definition..."
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={isAnswered}
+            style={{
+              padding: "1rem",
+              fontSize: "1rem",
+              borderColor: isAnswered
+                ? feedback === "correct"
+                  ? "var(--success-green)"
+                  : "var(--ink-black)"
+                : "var(--twilight-indigo)",
+              backgroundColor: isAnswered
+                ? feedback === "correct"
+                  ? "rgba(101, 204, 138, 0.1)"
+                  : "rgba(0, 0, 0, 0.05)"
+                : "var(--background)",
+              boxShadow: isAnswered && feedback === "incorrect"
+                ? "0 2px 4px rgba(0, 0, 0, 0.2)"
+                : "none",
+              color: "var(--ink-black)",
+            }}
           />
         </Col>
       </Row>
 
-      {/* Flip Button */}
-      <Row className="mb-4">
-        <Col className="text-center">
-          <Button
-            onClick={handleFlip}
-            style={{
-              backgroundColor: "var(--strawberry-red)",
-              borderColor: "var(--strawberry-red)",
-              padding: "0.75rem 2rem",
-              fontSize: "1rem",
-              fontWeight: "600",
-            }}
-            size="lg"
-            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.backgroundColor =
-                "var(--strawberry-red-hover)";
-              e.currentTarget.style.borderColor = "var(--strawberry-red-hover)";
-            }}
-            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
-              e.currentTarget.style.borderColor = "var(--strawberry-red)";
-            }}
-          >
-            FLIP
-          </Button>
-        </Col>
-      </Row>
+      {/* Feedback Display */}
+      {isAnswered && (
+        <Row className="mb-4">
+          <Col md={8} className="mx-auto">
+            <FeedbackDisplay
+              isCorrect={feedback === "correct"}
+              definition={currentCard.definition}
+            />
+          </Col>
+        </Row>
+      )}
 
-      {/* Navigation Buttons */}
-      <Row className="mb-4">
-        <Col className="text-center">
-          <div
-            style={{
-              display: "flex",
-              gap: "1rem",
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <Button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              variant="outline-primary"
-              style={{
-                borderColor: "var(--twilight-indigo)",
-                color: "var(--twilight-indigo)",
-                padding: "0.5rem 1.5rem",
-                minWidth: "120px",
-              }}
-            >
-              Previous
-            </Button>
-            <Button
-              onClick={handleNext}
-              disabled={currentIndex === set.cards.length - 1}
-              variant="outline-primary"
-              style={{
-                borderColor: "var(--twilight-indigo)",
-                color: "var(--twilight-indigo)",
-                padding: "0.5rem 1.5rem",
-                minWidth: "120px",
-              }}
-            >
-              Next
-            </Button>
-          </div>
-        </Col>
-      </Row>
-
-      {/* Status Buttons */}
+      {/* Submit / Skip and Continue Buttons */}
       <Row>
         <Col className="text-center">
-          <div
-            style={{
-              display: "flex",
-              gap: "1rem",
-              justifyContent: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            <Button
-              onClick={() => handleStatusClick("Unsure")}
-              variant="outline-danger"
+          {!isAnswered ? (
+            <div
               style={{
-                borderColor: "var(--strawberry-red)",
-                color: "var(--strawberry-red)",
-                padding: "0.5rem 1.5rem",
-                minWidth: "120px",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.currentTarget.style.backgroundColor = "var(--strawberry-red)";
-                e.currentTarget.style.color = "var(--background)";
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "var(--strawberry-red)";
+                display: "flex",
+                gap: "1rem",
+                justifyContent: "center",
+                flexWrap: "wrap",
               }}
             >
-              Unsure
-            </Button>
-            <Button
-              onClick={() => handleStatusClick("Learning")}
-              variant="outline-primary"
+              <Button
+                onClick={handleSubmitAnswer}
+                disabled={!userInput.trim()}
+                tabIndex={!userInput.trim() ? -1 : 0}
+                aria-label="Submit answer"
+                onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                  if ((e.key === "Enter" || e.key === " ") && userInput.trim()) {
+                    e.preventDefault();
+                    handleSubmitAnswer();
+                  }
+                }}
+                style={{
+                  backgroundColor: "var(--strawberry-red)",
+                  borderColor: "var(--strawberry-red)",
+                  padding: "0.75rem 2rem",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                }}
+                size="lg"
+              >
+                Submit
+              </Button>
+              <Button
+                onClick={handleSkip}
+                tabIndex={0}
+                aria-label="Skip this card"
+                onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleSkip();
+                  }
+                }}
+                style={{
+                  backgroundColor: "var(--ink-black)",
+                  borderColor: "var(--ink-black)",
+                  color: "var(--background)",
+                  padding: "0.75rem 2rem",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                }}
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.backgroundColor = "var(--background)";
+                  e.currentTarget.style.borderColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--ink-black)";
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.backgroundColor = "var(--ink-black)";
+                  e.currentTarget.style.borderColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--background)";
+                }}
+              >
+                Skip
+              </Button>
+            </div>
+          ) : (
+            <div
               style={{
-                borderColor: "var(--twilight-indigo)",
-                color: "var(--twilight-indigo)",
-                padding: "0.5rem 1.5rem",
-                minWidth: "120px",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.currentTarget.style.backgroundColor = "var(--warning-yellow)";
-                e.currentTarget.style.borderColor = "var(--warning-yellow)";
-                e.currentTarget.style.color = "var(--ink-black)";
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.borderColor = "var(--twilight-indigo)";
-                e.currentTarget.style.color = "var(--twilight-indigo)";
+                display: "flex",
+                gap: "1rem",
+                justifyContent: "center",
+                flexWrap: "wrap",
               }}
             >
-              Learning
-            </Button>
-            <Button
-              onClick={() => handleStatusClick("Mastered")}
-              variant="outline-success"
-              style={{
-                borderColor: "var(--vintage-grape)",
-                color: "var(--vintage-grape)",
-                padding: "0.5rem 1.5rem",
-                minWidth: "120px",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.currentTarget.style.backgroundColor = "var(--success-green)";
-                e.currentTarget.style.borderColor = "var(--success-green)";
-                e.currentTarget.style.color = "var(--background)";
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.borderColor = "var(--vintage-grape)";
-                e.currentTarget.style.color = "var(--vintage-grape)";
-              }}
-            >
-              Mastered
-            </Button>
-          </div>
+              <Button
+                ref={continueButtonRef}
+                onClick={handleNextAfterAnswer}
+                tabIndex={0}
+                aria-label="Continue to next card"
+                onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleNextAfterAnswer();
+                  }
+                }}
+                style={{
+                  backgroundColor:
+                    feedback === "correct"
+                      ? "var(--success-green)"
+                      : "var(--strawberry-red)",
+                  borderColor:
+                    feedback === "correct"
+                      ? "var(--success-green)"
+                      : "var(--strawberry-red)",
+                  padding: "0.75rem 2rem",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                }}
+                size="lg"
+              >
+                Continue
+              </Button>
+            </div>
+          )}
         </Col>
       </Row>
     </Container>

@@ -1,9 +1,74 @@
 import { useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Card } from "react-bootstrap";
 import { useParams } from "react-router";
 
 import { useStore } from "../store";
-import Flashcard from "../components/flashcard";
+
+interface FlashcardProps {
+  frontText: string;
+  backText: string;
+  isFlipped: boolean;
+  onFlip: () => void;
+}
+
+export default function Flashcard({
+  frontText,
+  backText,
+  isFlipped,
+  onFlip,
+}: FlashcardProps) {
+  return (
+    <Card
+      onClick={onFlip}
+      role="button"
+      tabIndex={0}
+      aria-label={isFlipped ? "Flashcard back side" : "Flashcard front side"}
+      onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onFlip();
+        }
+      }}
+      style={{
+        minHeight: "400px",
+        cursor: "pointer",
+        border: "2px solid var(--twilight-indigo)",
+        borderRadius: "1rem",
+        backgroundColor: isFlipped
+          ? "var(--twilight-indigo)"
+          : "var(--background)",
+        color: isFlipped ? "var(--background)" : "var(--ink-black)",
+        transition: "all 0.3s ease",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      onFocus={(e: React.FocusEvent<HTMLDivElement>) => {
+        e.currentTarget.style.outline = "3px solid var(--ink-black)";
+        e.currentTarget.style.outlineOffset = "3px";
+      }}
+      onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
+        e.currentTarget.style.outline = "none";
+      }}
+    >
+      <Card.Body
+        style={{
+          textAlign: "center",
+          padding: "3rem",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "2rem",
+            fontWeight: "600",
+          }}
+        >
+          {isFlipped ? backText : frontText}
+        </h2>
+      </Card.Body>
+    </Card>
+  );
+}
 
 export function Component() {
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -104,12 +169,32 @@ export function Component() {
             <Button
               onClick={handlePrevious}
               disabled={currentIdx === 0}
-              variant="outline-primary"
+              variant="outline-secondary"
+              tabIndex={currentIdx === 0 ? -1 : 0}
+              aria-label="Previous card"
+              onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                if ((e.key === "Enter" || e.key === " ") && currentIdx > 0) {
+                  e.preventDefault();
+                  handlePrevious();
+                }
+              }}
               style={{
-                borderColor: "var(--twilight-indigo)",
-                color: "var(--twilight-indigo)",
+                borderColor: "var(--ink-black)",
+                color: "var(--ink-black)",
                 padding: "0.5rem 1.5rem",
                 minWidth: "120px",
+              }}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--background)";
+                }
+              }}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "var(--ink-black)";
+                }
               }}
             >
               Previous
@@ -140,12 +225,35 @@ export function Component() {
             <Button
               onClick={handleNext}
               disabled={currentIdx === set.cards.length - 1}
-              variant="outline-primary"
+              variant="outline-secondary"
+              tabIndex={currentIdx === set.cards.length - 1 ? -1 : 0}
+              aria-label="Next card"
+              onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                if (
+                  (e.key === "Enter" || e.key === " ") &&
+                  currentIdx < set.cards.length - 1
+                ) {
+                  e.preventDefault();
+                  handleNext();
+                }
+              }}
               style={{
-                borderColor: "var(--twilight-indigo)",
-                color: "var(--twilight-indigo)",
+                borderColor: "var(--ink-black)",
+                color: "var(--ink-black)",
                 padding: "0.5rem 1.5rem",
                 minWidth: "120px",
+              }}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundColor = "var(--ink-black)";
+                  e.currentTarget.style.color = "var(--background)";
+                }
+              }}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                if (!e.currentTarget.disabled) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "var(--ink-black)";
+                }
               }}
             >
               Next

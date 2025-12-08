@@ -42,9 +42,10 @@ export function Component() {
       updateSet(id, name, flashcards);
       navigate("/sets");
     } else {
-      const newId = createSet(name, flashcards);
-      navigate(`/study?setId=${newId}`);
+      const id = createSet(name, flashcards);
+      navigate(`/master/${id}`)
     }
+
   };
 
   const addFlashcard = (e: React.FormEvent<HTMLFormElement>) => {
@@ -172,9 +173,20 @@ export function Component() {
                 <Button
                   type="submit"
                   style={{
-                    backgroundColor: "var(--twilight-indigo)",
-                    borderColor: "var(--twilight-indigo)",
+                    backgroundColor: "var(--ink-black)",
+                    borderColor: "var(--ink-black)",
+                    color: "var(--background)",
                     fontWeight: "600",
+                  }}
+                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                    e.currentTarget.style.backgroundColor = "var(--background)";
+                    e.currentTarget.style.borderColor = "var(--ink-black)";
+                    e.currentTarget.style.color = "var(--ink-black)";
+                  }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                    e.currentTarget.style.backgroundColor = "var(--ink-black)";
+                    e.currentTarget.style.borderColor = "var(--ink-black)";
+                    e.currentTarget.style.color = "var(--background)";
                   }}
                 >
                   Add Card
