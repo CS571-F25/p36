@@ -1,11 +1,12 @@
 import { Card, Button } from "react-bootstrap";
-import { FaTrash, FaGraduationCap } from "react-icons/fa";
+import { FaTrash, FaGraduationCap, FaEdit } from "react-icons/fa";
 import type { FlashcardSet } from "../store";
 
 interface SetCardProps {
   set: FlashcardSet;
   onSetClick: (setId: string) => void;
   onMasterClick: (e: React.MouseEvent, setId: string) => void;
+  onEditClick: (e: React.MouseEvent, setId: string) => void;
   onDeleteClick: (e: React.MouseEvent, setId: string) => void;
 }
 
@@ -13,6 +14,7 @@ export default function SetCard({
   set,
   onSetClick,
   onMasterClick,
+  onEditClick,
   onDeleteClick,
 }: SetCardProps) {
   return (
@@ -55,7 +57,7 @@ export default function SetCard({
       }}
     >
       <Card.Body>
-        {/* Master and delete buttons */}
+        {/* Master, Edit, and Delete buttons */}
         <div
           style={{
             position: "absolute",
@@ -92,6 +94,27 @@ export default function SetCard({
           </Button>
           <Button
             variant="link"
+            onClick={(e) => onEditClick(e, set.id)}
+            aria-label="Edit set"
+            style={{
+              padding: "0.25rem 0.5rem",
+              color: "var(--twilight-indigo)",
+              textDecoration: "none",
+              lineHeight: "1",
+            }}
+            onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.currentTarget.style.color = "var(--vintage-grape)";
+              e.currentTarget.style.backgroundColor = "rgba(56, 64, 95, 0.1)";
+            }}
+            onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+              e.currentTarget.style.color = "var(--twilight-indigo)";
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
+          >
+            <FaEdit size={18} />
+          </Button>
+          <Button
+            variant="link"
             onClick={(e) => onDeleteClick(e, set.id)}
             aria-label="Delete set"
             style={{
@@ -117,6 +140,7 @@ export default function SetCard({
             color: "var(--ink-black)",
             fontWeight: "600",
             marginBottom: "0.75rem",
+            paddingRight: "6rem", // Add padding to prevent overlap with buttons
           }}
         >
           {set.name}
