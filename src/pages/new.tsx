@@ -37,15 +37,14 @@ export function Component() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = String(formData.get("name"));
-    
+
     if (isEditMode && id) {
       updateSet(id, name, flashcards);
       navigate("/sets");
     } else {
-      const id = createSet(name, flashcards);
-      navigate(`/master/${id}`)
+      createSet(name, flashcards);
+      navigate("/sets");
     }
-
   };
 
   const addFlashcard = (e: React.FormEvent<HTMLFormElement>) => {
