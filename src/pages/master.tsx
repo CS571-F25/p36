@@ -321,15 +321,16 @@ export function Component() {
       {/* Header with set info */}
       <Row className="mb-4">
         <Col className="text-center">
-          <h2
+          <h1
             style={{
               color: "var(--ink-black)",
               fontWeight: "bold",
               marginBottom: "0.5rem",
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
             }}
           >
             {set.name}
-          </h2>
+          </h1>
           <p style={{ color: "var(--vintage-grape)" }}>
             {masteryMap.filter((c) => c === "Mastered").length} /{" "}
             {set.cards.length} cards mastered
@@ -379,13 +380,19 @@ export function Component() {
       {/* Input Field */}
       <Row className="mb-4">
         <Col md={8} className="mx-auto">
-          <Form.Control
-            type="text"
-            placeholder="Type the definition..."
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isAnswered}
+          <Form.Group>
+            <Form.Label htmlFor="definition-input" style={{ display: "none" }}>
+              Type the definition
+            </Form.Label>
+            <Form.Control
+              id="definition-input"
+              type="text"
+              placeholder="Type the definition..."
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isAnswered}
+              aria-label="Type the definition for the term"
             style={{
               padding: "1rem",
               fontSize: "1rem",
@@ -404,7 +411,8 @@ export function Component() {
                 : "none",
               color: "var(--ink-black)",
             }}
-          />
+            />
+          </Form.Group>
         </Col>
       </Row>
 

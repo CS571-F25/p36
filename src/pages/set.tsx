@@ -131,7 +131,7 @@ export function Component() {
       {/* Counter */}
       <Row className="mb-4">
         <Col className="text-center">
-          <h3
+          <h2
             style={{
               fontSize: "1.5rem",
               color: "var(--vintage-grape)",
@@ -139,7 +139,7 @@ export function Component() {
             }}
           >
             {currentIdx + 1} / {set.cards.length}
-          </h3>
+          </h2>
         </Col>
       </Row>
 
